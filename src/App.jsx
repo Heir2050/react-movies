@@ -3,7 +3,8 @@ import Search from "./components/search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
 
-const API_BASE_URL = 'https://api.themoviedb.org/3/discover/movie'
+// const API_BASE_URL = 'https://api.themoviedb.org/3/discover/movie'
+const API_BASE_URL = 'https://api.themoviedb.org/3'
 
 // Load the api key stored at .env
 const API_KEY = import.meta.env.VITE_TMDB_KEY
@@ -30,13 +31,15 @@ const App = () => {
     const [isLoading, setIsLoading] = useState(false)
 
     // Fonction to fetch movies
-    const fetchMovies = async () => {
+    const fetchMovies = async (query ='') => {  // query was added when implementing search
         // Before loading anything
         setIsLoading(true)
         setErrorMeassage('')
         try {
             // const endpoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`
-            const endpoint = `${API_BASE_URL}?sort_by=popularity.desc`;
+            const endpoint = query 
+            ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+            : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
 
             const response = await fetch(endpoint, API_OPTIONS)
 
@@ -74,8 +77,8 @@ const App = () => {
         // this will help to load or fetching the API datas
 
         // try to load fetchMovies() fonction to load all movies when the app is running
-        fetchMovies()
-    }, [])
+        fetchMovies(searchTerm) // searchTerm was added when implementing search
+    }, [searchTerm])
 
     return ( 
         <main>
