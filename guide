@@ -1,0 +1,1 @@
+to install tailwind, we add some (tailwindcss()) at the vit.config.js file and imported the it as well
