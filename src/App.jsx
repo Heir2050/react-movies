@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Search from "./components/search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
+import { useDebounce } from "react-use";
 
 // const API_BASE_URL = 'https://api.themoviedb.org/3/discover/movie'
 const API_BASE_URL = 'https://api.themoviedb.org/3'
@@ -29,6 +30,12 @@ const App = () => {
 
     // When you fetch smethings on API it's takes times while showing loading
     const [isLoading, setIsLoading] = useState(false)
+
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+
+    // debounce the search term to prevent too many API request
+    // by waiting by the user to stop tyiping for 500ms
+    useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]) // This is optimize the search
 
     // Fonction to fetch movies
     const fetchMovies = async (query ='') => {  // query was added when implementing search
@@ -77,8 +84,8 @@ const App = () => {
         // this will help to load or fetching the API datas
 
         // try to load fetchMovies() fonction to load all movies when the app is running
-        fetchMovies(searchTerm) // searchTerm was added when implementing search
-    }, [searchTerm])
+        fetchMovies(debouncedSearchTerm) // searchTerm was added when implementing search
+    }, [debouncedSearchTerm])
 
     return ( 
         <main>
