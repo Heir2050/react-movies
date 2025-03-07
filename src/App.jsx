@@ -3,6 +3,7 @@ import Search from "./components/search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
 import { useDebounce } from "react-use";
+import { updateSearchCount } from "./appwrite";
 
 // const API_BASE_URL = 'https://api.themoviedb.org/3/discover/movie'
 const API_BASE_URL = 'https://api.themoviedb.org/3'
@@ -35,7 +36,7 @@ const App = () => {
 
     // debounce the search term to prevent too many API request
     // by waiting by the user to stop tyiping for 500ms
-    useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]) // This is optimize the search
+    useDebounce(() => setDebouncedSearchTerm(searchTerm), 900, [searchTerm]) // This is optimize the search
 
     // Fonction to fetch movies
     const fetchMovies = async (query ='') => {  // query was added when implementing search
@@ -70,6 +71,11 @@ const App = () => {
 
             // But if it's succed
             setMovieList(data.results || [])
+
+            // Within the backend, that allows most searched movie fonctionnality
+            if (query && data.results.length > 0) {
+                await updateSearchCount(query, data.results[0])
+            }
 
         } catch (error) {
             console.error(`Error fetching Movies: ${error}`);
