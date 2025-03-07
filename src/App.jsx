@@ -3,7 +3,7 @@ import Search from "./components/search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
 import { useDebounce } from "react-use";
-import { updateSearchCount } from "./appwrite";
+import { getTrendingMovies, updateSearchCount } from "./appwrite";
 
 // const API_BASE_URL = 'https://api.themoviedb.org/3/discover/movie'
 const API_BASE_URL = 'https://api.themoviedb.org/3'
@@ -33,6 +33,9 @@ const App = () => {
     const [isLoading, setIsLoading] = useState(false)
 
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+
+    // To get trending movies
+    const [trendingMovies, setTrendingMovies] = useState([])
 
     // debounce the search term to prevent too many API request
     // by waiting by the user to stop tyiping for 500ms
@@ -86,12 +89,29 @@ const App = () => {
         }
     }
 
+    const loadTrendingMovies = async () => {
+        try {
+            const movies = await getTrendingMovies()
+            
+            setTrendingMovies(movies)
+        } catch (error) {
+            console.error(`Error fetching Movies: ${error}`);
+            
+        }
+    }
+
     useEffect(() => {
         // this will help to load or fetching the API datas
 
         // try to load fetchMovies() fonction to load all movies when the app is running
         fetchMovies(debouncedSearchTerm) // searchTerm was added when implementing search
     }, [debouncedSearchTerm])
+
+    useEffect(() => {
+        // Il est appellé ici toute seul pour empecher de l'appeler unitilement
+        // a cause des arguments passer
+        loadTrendingMovies()
+    }, [])
 
     return ( 
         <main>
@@ -105,8 +125,23 @@ const App = () => {
                     <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
                 </header>
                     {/* <h1 className="text-white">{searchTerm}</h1> */}
+
+                {trendingMovies.length > 0 && (
+                    <section className="trending">
+                        <h2>Trending Movies</h2>
+                        <ul>
+                            {trendingMovies.map((movie, index) => (
+                                <li key={movie.$id}>
+                                    <p>{index + 1}</p>
+                                    <img src={movie.poster_url} alt="" />
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                )}
+
                 <section className="all-movies">
-                    <h2 className="mt-[20px]">All Movies</h2>
+                    <h2>All Movies</h2>
                     {/* Otherwise calling the error message */}
                     {/* {errorMeassage && <p className="text-red-500">{errorMeassage}</p>} */}
 
